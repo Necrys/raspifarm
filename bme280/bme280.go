@@ -26,6 +26,15 @@ func (this *Connection) Disconnect() (error) {
     return nil
 }
 
+func (this *Connection) ChipID() (uint8, uint8, error) {
+    data := []byte{0, 0}
+    err := this.conn.ReadReg(0xD0, data)
+    if err != nil {
+        return 0, 0, err
+    }
+
+    return data[0], data[1], nil
+}
 //
 //    chipId := []byte{0}
 //    err = conn.ReadReg(0xD0, chipId)
