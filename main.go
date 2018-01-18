@@ -17,6 +17,12 @@ func main() {
         log.Fatal(err)
     }
     fmt.Printf("Chip ID: %v\nChip version: %v\n", id, ver)
+
+    temp, hum, pres, err := conn.ReadData()
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("Temperature: %vC\nHumidity: %v%%\nPressure: %v\n", temp, hum, pres)
     
     err = conn.Disconnect()
     if err != nil {
