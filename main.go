@@ -2,12 +2,23 @@ package main
 
 import ( 
     "./bme280"
+    "./config"
     "log"
     "fmt"
+    "flag"
 )
 
 func main() {
-    conn, err := BME280.Connect(0x76, 1)
+    optCfgPath := flag.String("config", "default.json", "raspifarm configuration file")
+    flag.Parse()
+
+    cfg, err := config.Read(*optCfgPath)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("%v\n", *cfg)
+
+    conn, err := BME280.Connect(cfg.Sensors[0].Address, cfg.Sensors[0].Bus)
     if err != nil {
         log.Fatal(err)
     }
