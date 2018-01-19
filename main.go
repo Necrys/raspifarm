@@ -16,7 +16,6 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
-    fmt.Printf("%v\n", *cfg)
 
     conn, err := BME280.Connect(cfg.Sensors[0].Address, cfg.Sensors[0].Bus)
     if err != nil {
@@ -29,11 +28,16 @@ func main() {
     }
     fmt.Printf("Chip ID: %v\nChip version: %v\n", id, ver)
 
+    err = conn.ReadCalibration()
+    if err != nil {
+        log.Fatal(err)
+    }
+
     temp, hum, pres, err := conn.ReadData()
     if err != nil {
         log.Fatal(err)
     }
-    fmt.Printf("Temperature: %vC\nHumidity: %v%%\nPressure: %v\n", temp, hum, pres)
+    fmt.Printf("Temperature: %.2f C\nHumidity: %.2f %%\nPressure: %.2f mm Hg\n", temp, hum, pres)
     
     err = conn.Disconnect()
     if err != nil {
