@@ -100,8 +100,25 @@ func (this *Connection) ReadData() (float64, float64, float64, error) {
     digT2 := int16(calib01[3]) << 8 | int16(calib01[2])
     digT3 := int16(calib01[5]) << 8 | int16(calib01[4])
 
+    digH1 := uint8(calib02[0])
+    digH2 := int16(calib03[1]) << 8 | int16(calib03[0])
+    digH3 := uint8(calib03[2])
+
+    digH4 := int32(calib03[3])
+    digH4 = (digH4 << 24) >> 20
+    digH4 = digH4 | (int32(calib03[4]) & 0x0F)
+
+    digH5 := int32(calib03[5])
+    digH5 = (digH5 << 24) >> 20
+    digH5 = digH5 | (int32(calib03[4]) >> 4 & 0x0F)
+
+    digH6 := int32(calib03[6])
+
+    //fmt.Printf("%v, %v, %v, %v, %v, %v\n", digH1, digH2, digH3, digH4, digH5, digH6)
+
     // wait for the measurements are done (Datasheet Appendix B: Measurement time and current calculation)
     waitTime := 1.25 + (2.3 * float64(this.oversampleTemp)) + ((2.3 * float64(this.oversamplePres)) + 0.575) + ((2.3 * float64(this.oversampleHum))+0.575);
+    fmt.Printf("%v\n", waitTime)
     time.Sleep(time.Duration(waitTime) * time.Millisecond)
 
     // read measurements
@@ -112,6 +129,8 @@ func (this *Connection) ReadData() (float64, float64, float64, error) {
     }
 
     rawTemp := uint32(rawData[3]) << 12 | uint32(rawData[4]) << 4 | uint32(rawData[5]) >> 4
+    rawHum := (uint32(rawData[6]) << 8) | uint32(rawData[7])
+    fmt.Printf("%v\n", rawHum)
 
     // refine temperature value
     var1 := ((uint32(rawTemp >> 3) - uint32(digT1) << 1) * uint32(digT2)) >> 11
@@ -120,5 +139,15 @@ func (this *Connection) ReadData() (float64, float64, float64, error) {
     vart := var1 + var3
     temperature := float64(((vart * 5) + 128) >> 8)
 
-    return temperature/100.0, 0.0, 0.0, nil
+    // refine humidity value
+    humidity := float64(vart) - 76800.0
+    humidity = (float64(rawHum) - (float64(digH4) * 64.0 + float64(digH5) / 16384.0 * humidity)) * (float64(digH2) / 65536.0 * (1.0 + float64(digH6) / 67108864.0 * humidity * (1.0 + float64(digH3) / 67108864.0 * humidity)))
+    humidity = humidity * (1.0 - float64(digH1) * humidity / 524288.0)
+    if humidity > 100.0 {
+        humidity = 100.0
+    } else if humidity < 0.0 {
+        humidity = 0.0
+    }
+
+    return temperature/100.0, humidity, 0.0, nil
 }
