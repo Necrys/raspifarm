@@ -71,7 +71,8 @@ func (this *Connection) ReadData() (float64, float64, float64, error) {
     }
 
     // write other control
-    err = this.conn.WriteReg(REG_CONTROL_HUM, []byte {this.oversampleTemp << 5 | this.oversamplePres << 2 | this.mode})
+    control := []byte {this.oversampleTemp << 5 | this.oversamplePres << 2 | this.mode}
+    err = this.conn.WriteReg(REG_CONTROL, control)
     if err != nil {
         return 0.0, 0.0, 0.0, err
     }
@@ -118,7 +119,7 @@ func (this *Connection) ReadData() (float64, float64, float64, error) {
 
     // wait for the measurements are done (Datasheet Appendix B: Measurement time and current calculation)
     waitTime := 1.25 + (2.3 * float64(this.oversampleTemp)) + ((2.3 * float64(this.oversamplePres)) + 0.575) + ((2.3 * float64(this.oversampleHum))+0.575);
-    fmt.Printf("%v\n", waitTime)
+    //fmt.Printf("%v\n", waitTime)
     time.Sleep(time.Duration(waitTime) * time.Millisecond)
 
     // read measurements
@@ -127,10 +128,11 @@ func (this *Connection) ReadData() (float64, float64, float64, error) {
     if err != nil {
         return 0.0, 0.0, 0.0, err
     }
+    fmt.Printf("%v\n", rawData)
 
     rawTemp := uint32(rawData[3]) << 12 | uint32(rawData[4]) << 4 | uint32(rawData[5]) >> 4
     rawHum := (uint32(rawData[6]) << 8) | uint32(rawData[7])
-    fmt.Printf("%v\n", rawHum)
+    //fmt.Printf("%v\n", rawHum)
 
     // refine temperature value
     var1 := ((uint32(rawTemp >> 3) - uint32(digT1) << 1) * uint32(digT2)) >> 11
