@@ -8,6 +8,7 @@ import (
 type Config struct {
     Log_path string
     Sensors []Sensor
+    Update_period uint32
 }
 
 type Sensor struct {

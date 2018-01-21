@@ -3,12 +3,27 @@ package main
 import ( 
     "./bme280"
     "./config"
+    "./trigger"
     "log"
     "fmt"
     "flag"
+    "os"
+    "os/signal"
+    "syscall"
+    "time"
 )
 
 func main() {
+    isWorking := true
+    sigs := make(chan os.Signal, 1)
+    go func() {
+        sig := <-sigs
+        fmt.Println(sig)
+        isWorking = false;
+    }()
+
+    signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
     optCfgPath := flag.String("config", "default.json", "raspifarm configuration file")
     flag.Parse()
 
@@ -22,25 +37,41 @@ func main() {
         log.Fatal(err)
     }
 
-    id, ver, err := conn.ChipID()
-    if err != nil {
-        log.Fatal(err)
-    }
-    fmt.Printf("Chip ID: %v\nChip version: %v\n", id, ver)
+    defer conn.Disconnect()
 
-    err = conn.ReadCalibration()
-    if err != nil {
-        log.Fatal(err)
-    }
+    sensors := make(map[string]BME280.SensorIf)
+    sensors[cfg.Sensors[0].Name] = conn
 
-    temp, hum, pres, err := conn.ReadData()
-    if err != nil {
-        log.Fatal(err)
-    }
-    fmt.Printf("Temperature: %.2f C\nHumidity: %.2f %%\nPressure: %.2f mm Hg\n", temp, hum, pres)
+    var triggers []trigger.Trigger
+
+    ctx := trigger.CreateContext(cfg)
     
-    err = conn.Disconnect()
-    if err != nil {
-        log.Fatal(err)
+    for isWorking {
+        // Dirty hacks work only for ANSI terminals
+        fmt.Printf("\033[2J") // clear screen
+        fmt.Printf("\033[0;0H") // move cursor to up left corner
+
+        // read sensors
+        for _, s := range cfg.Sensors {
+            temp, hum, pres, err := sensors[s.Name].ReadData()
+            if err != nil {
+                log.Fatal(err)
+            }
+
+            ctx.Sensors[s.Name].Temperature = temp
+            ctx.Sensors[s.Name].Humidity = hum
+            ctx.Sensors[s.Name].Pressure = pres
+
+            fmt.Println("----------------------------------------")
+            fmt.Printf("%v (%v)\n\r0n\r\r\rTemperature\t: %.2f C\nHumidity\t: %.2f %%\nPressure\t: %.2f mm Hg\n",
+                s.Name, s.Type, ctx.Sensors[s.Name].Temperature, ctx.Sensors[s.Name].Humidity, ctx.Sensors[s.Name].Pressure)
+            fmt.Println("----------------------------------------")            
+        }
+
+        for _, trg := range triggers {
+            trigger.ProcessTrigger(trg, ctx)
+        }
+
+        time.Sleep(time.Duration(cfg.Update_period) * time.Millisecond)
     }
 }

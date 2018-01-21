@@ -2,7 +2,12 @@ package BME280
 
 import "fmt"
 import "time"
+import "log"
 import "golang.org/x/exp/io/i2c" // go get golang.org/x/exp/io/i2c
+
+type SensorIf interface {
+    ReadData() (float64, float64, float64, error)
+}
 
 type Connection struct {
     conn *i2c.Device
@@ -60,16 +65,20 @@ func Connect(address uint8, bus int) (*Connection, error) {
     this.oversamplePres = 2
     this.mode = 1
 
+    err = this.ReadCalibration()
+    if err != nil {
+        return nil, err
+    }
+
     return this, nil
 }
 
 // Close I2C connection
-func (this *Connection) Disconnect() (error) {
+func (this *Connection) Disconnect() () {
     err := this.conn.Close()
     if err != nil {
-        return err
+        log.Fatal(err)
     }
-    return nil
 }
 
 // Read calibration values

@@ -2,10 +2,11 @@
     "log_path": "configured_log.txt",
     "sensors": [
         {
-            "name": "temperature",
+            "name": "default",
             "type": "BME280",
             "address": 118,
             "bus": 1
         }
-    ]
+    ],
+    "update_period": 2000
 }
