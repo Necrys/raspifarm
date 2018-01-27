@@ -8,5 +8,6 @@
             "bus": 1
         }
     ],
-    "update_period": 2000
+    "update_period": 2000,
+    "sensors_log_period": 5
 }
