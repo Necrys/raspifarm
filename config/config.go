@@ -12,6 +12,7 @@ type Config struct {
     Triggers []Trigger
     Update_period uint32
     Sensors_log_period uint32
+    Do_hw_test bool
 }
 
 type Sensor struct {

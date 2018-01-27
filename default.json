@@ -31,5 +31,6 @@
         "low_threshold": { "value": 16.0, "action": "Off" },
         "high_threshold": { "value": 18.0, "action": "On" }
     }
-    ]
+    ],
+    "do_hw_test": false
 }

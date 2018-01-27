@@ -72,12 +72,14 @@ func main() {
     }()
 
     // do hw test
-    for k, v := range ctx.Relays {
-        fmt.Printf("Testing relay \"%v\"\n", k)
-        v.On()
-        time.Sleep(time.Duration(500) * time.Millisecond)
-        v.Off()
-        time.Sleep(time.Duration(500) * time.Millisecond)
+    if cfg.Do_hw_test {
+        for k, v := range ctx.Relays {
+            fmt.Printf("Testing relay \"%v\"\n", k)
+            v.On()
+            time.Sleep(time.Duration(500) * time.Millisecond)
+            v.Off()
+            time.Sleep(time.Duration(500) * time.Millisecond)
+        }
     }
 
     for isWorking {
