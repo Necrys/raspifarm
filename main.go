@@ -74,6 +74,16 @@ func main() {
         }
     }()
     
+    time.Sleep(time.Duration(5000) * time.Millisecond)
+    
+    // do hw test
+    for k, v := range ctx.Relays {
+        fmt.Printf("Testing relay \"%v\"\n", k)
+        v.On()
+        time.Sleep(time.Duration(2000) * time.Millisecond)
+        v.Off()
+    }
+    
     for isWorking {
         // Dirty hacks work only for ANSI terminals
         //fmt.Printf("\033[2J") // clear screen
