@@ -9,6 +9,7 @@ type Config struct {
     Log_path string
     Sensors []Sensor
     Relays []Relay
+    Triggers []Trigger
     Update_period uint32
     Sensors_log_period uint32
 }
@@ -23,6 +24,20 @@ type Sensor struct {
 type Relay struct {
     Name string
     Pin uint8
+}
+
+type Threshold struct {
+    Value  float64
+    Action string
+}
+
+type Trigger struct {
+    Type           string
+    Sensor         string
+    Parameter      string
+    Relay          string
+    Low_threshold  Threshold
+    High_threshold Threshold
 }
 
 func Read(cfgPath string) (*Config, error) {

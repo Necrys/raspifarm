@@ -1,7 +1,6 @@
 {
     "log_path": "configured_log.txt",
-    "sensors": [
-        {
+    "sensors": [{
             "name": "default",
             "type": "BME280",
             "address": 118,
@@ -9,7 +8,7 @@
         }
     ],
     "update_period": 2000,
-    "sensors_log_period": 5,
+    "sensors_log_period": 20,
     "relays" : [{
             "name": "fan",
             "pin" : 4
@@ -23,5 +22,14 @@
             "name": "make some beer",
             "pin" : 23
         }
+    ],
+    "triggers" : [{
+        "type": "high_low_threshold",
+        "sensor": "default",
+        "parameter": "humidity",
+        "relay": "fan",
+        "low_threshold": { "value": 16.0, "action": "Off" },
+        "high_threshold": { "value": 18.0, "action": "On" }
+    }
     ]
 }

@@ -20,7 +20,7 @@ func main() {
     sigs := make(chan os.Signal, 1)
     go func() {
         sig := <-sigs
-        fmt.Println(sig)
+        fmt.Printf("%v\n", sig)
         isWorking = false;
     }()
 
@@ -31,7 +31,7 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
-    defer rpio.Close()
+    //defer rpio.Close()
     
     optCfgPath := flag.String("config", "default.json", "raspifarm configuration file")
     flag.Parse()
@@ -52,9 +52,6 @@ func main() {
     sensors := make(map[string]BME280.SensorIf)
     sensors[cfg.Sensors[0].Name] = conn
 
-    // TODO: do triggers creation by config
-    var triggers []trigger.Trigger
-
     ctx := trigger.CreateContext(cfg)
     
     err = sensorlog.InitFile(ctx)
@@ -73,17 +70,16 @@ func main() {
             time.Sleep(logPeriod)
         }
     }()
-    
-    time.Sleep(time.Duration(5000) * time.Millisecond)
-    
+
     // do hw test
     for k, v := range ctx.Relays {
         fmt.Printf("Testing relay \"%v\"\n", k)
         v.On()
-        time.Sleep(time.Duration(2000) * time.Millisecond)
+        time.Sleep(time.Duration(500) * time.Millisecond)
         v.Off()
+        time.Sleep(time.Duration(500) * time.Millisecond)
     }
-    
+
     for isWorking {
         // Dirty hacks work only for ANSI terminals
         //fmt.Printf("\033[2J") // clear screen
@@ -106,10 +102,17 @@ func main() {
             //fmt.Println("----------------------------------------")            
         }
 
-        for _, trg := range triggers {
+        for _, trg := range ctx.Triggers {
             trigger.ProcessTrigger(trg, ctx)
         }
 
         time.Sleep(time.Duration(cfg.Update_period) * time.Millisecond)
     }
+
+    // off all hw
+    for _, v := range ctx.Relays {
+        v.Off()
+    }
+
+    rpio.Close()
 }
