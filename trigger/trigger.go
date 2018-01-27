@@ -2,6 +2,8 @@ package trigger
 
 import (
     "../config"
+    "../relay"
+    "log"
 )
 
 type SensorData struct {
@@ -10,15 +12,15 @@ type SensorData struct {
     Pressure float64
 }
 
-type SwitchIf interface {
+type RelayIf interface {
     State() bool
-    SwitchOn()
-    SwitchOff()
+    On()
+    Off()
 }
 
 type Context struct {
     Sensors map[string]*SensorData
-    Switches map[string]SwitchIf
+    Relays map[string]RelayIf
 }
 
 type Trigger interface {
@@ -33,10 +35,19 @@ func ProcessTrigger(trg Trigger, ctx *Context) {
 }
 
 func CreateContext(cfg *config.Config) (*Context) {
-    this := &Context{Sensors: make (map[string]*SensorData), Switches: make (map[string]SwitchIf)}
+    this := &Context{Sensors: make (map[string]*SensorData), Relays: make (map[string]RelayIf)}
 
     for _, s := range cfg.Sensors {
         this.Sensors[s.Name] = &SensorData{}
+    }
+    
+    for _, r := range cfg.Relays {
+        rel, err := relay.NewRelay(r.Pin)
+        if err != nil {
+            log.Fatal(err)
+            continue
+        }
+        this.Relays[r.Name] = rel
     }
 
     return this

@@ -8,6 +8,7 @@ import (
 type Config struct {
     Log_path string
     Sensors []Sensor
+    Relays []Relay
     Update_period uint32
     Sensors_log_period uint32
 }
@@ -17,6 +18,11 @@ type Sensor struct {
     Type string
     Address uint8
     Bus int
+}
+
+type Relay struct {
+    Name string
+    Pin uint8
 }
 
 func Read(cfgPath string) (*Config, error) {

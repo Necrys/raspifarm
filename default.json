@@ -9,5 +9,11 @@
         }
     ],
     "update_period": 2000,
-    "sensors_log_period": 5
+    "sensors_log_period": 5,
+    "relays" : [
+        {
+            "name": "fan",
+            "pin" : 4
+        }
+    ]
 }

@@ -12,6 +12,7 @@ import (
     "os/signal"
     "syscall"
     "time"
+    "github.com/stianeikeland/go-rpio"
 )
 
 func main() {
@@ -25,6 +26,13 @@ func main() {
 
     signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
+    // init GPIO lib
+    err := rpio.Open()
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer rpio.Close()
+    
     optCfgPath := flag.String("config", "default.json", "raspifarm configuration file")
     flag.Parse()
 
