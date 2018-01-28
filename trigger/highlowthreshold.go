@@ -15,6 +15,7 @@ type HighLowThresholdTrigger struct {
     last         float64
     actionOnLow  bool
     actionOnHigh bool
+    initial      bool
 }
 
 func NewHighLowThresholdTrigger(cfg config.Trigger) (*HighLowThresholdTrigger, error) {
@@ -24,7 +25,8 @@ func NewHighLowThresholdTrigger(cfg config.Trigger) (*HighLowThresholdTrigger, e
         relay: cfg.Relay,
         low: cfg.Low_threshold.Value,
         high: cfg.High_threshold.Value,
-        last: 0.0 }
+        last: 0.0,
+        initial: true }
     
     if cfg.Low_threshold.Action == "On" {
         this.actionOnLow = true
@@ -51,12 +53,14 @@ func (this *HighLowThresholdTrigger) Condition(ctx *Context) (bool) {
         log.Panic(err)
         return false
     }
-        
-    if this.last <= this.high && val > this.high {
+
+    if this.last <= this.high && val > this.high ||
+       this.initial && val > this.high {
         return true
     }
         
-    if this.last >= this.low && val < this.low {
+    if this.last >= this.low && val < this.low ||
+       this.initial && val < this.low {
         return true
     }
     
@@ -75,20 +79,24 @@ func (this *HighLowThresholdTrigger) Action(ctx *Context) {
         return
     }
     
-    if this.last <= this.high && val > this.high {
+    if this.last <= this.high && val > this.high ||
+       this.initial && val > this.high {
         if this.actionOnHigh == true {
             ctx.Relays[this.relay].On()
         } else {
             ctx.Relays[this.relay].Off()
         }
+        this.initial = false
     }
         
-    if this.last >= this.low && val < this.low {
+    if this.last >= this.low && val < this.low ||
+       this.initial && val < this.low {
         if this.actionOnLow == true {
             ctx.Relays[this.relay].On()
         } else {
             ctx.Relays[this.relay].Off()
         }
+        this.initial = false
     }
 
     this.last = val

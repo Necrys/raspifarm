@@ -8,29 +8,36 @@
         }
     ],
     "update_period": 2000,
-    "sensors_log_period": 20,
+    "sensors_log_period": 1,
     "relays" : [{
-            "name": "fan",
+            "name": "light",
             "pin" : 4
         },{
-            "name": "light",
+            "name": "null",
             "pin" : 17
         },{
-            "name": "heat",
+            "name": "fan",
             "pin" : 22
         },{
-            "name": "make some beer",
+            "name": "heat",
             "pin" : 23
         }
     ],
     "triggers" : [{
         "type": "high_low_threshold",
         "sensor": "default",
-        "parameter": "humidity",
+        "parameter": "temperature",
+        "relay": "heat",
+        "low_threshold": { "value": 29.5, "action": "On" },
+        "high_threshold": { "value": 32.0, "action": "Off" }
+    },{
+        "type": "high_low_threshold",
+        "sensor": "default",
+        "parameter": "temperature",
         "relay": "fan",
-        "low_threshold": { "value": 16.0, "action": "Off" },
-        "high_threshold": { "value": 18.0, "action": "On" }
+        "low_threshold": { "value": 30.0, "action": "Off" },
+        "high_threshold": { "value": 32.0, "action": "On" }
     }
     ],
-    "do_hw_test": false
+    "do_hw_test": true
 }
