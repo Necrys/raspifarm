@@ -19,11 +19,13 @@ type ScheduleTrigger struct {
     relay   string
     doAction bool
     points  []SchedulePoint
+    initial bool
 }
 
 func NewScheduleTrigger(cfg config.Trigger) (*ScheduleTrigger, error) {
     this := &ScheduleTrigger {
-        relay: cfg.Relay }
+        relay: cfg.Relay,
+        initial: true }
 
     now := time.Now()
 
@@ -93,6 +95,12 @@ func (this *ScheduleTrigger) Condition(ctx *Context) (bool) {
         this.points = append(this.points, t)
         this.doAction = t.action
 
+        return true
+    }
+
+    if this.initial == true {
+        this.doAction = this.points[len(this.points)-1].action
+        this.initial = false
         return true
     }
 
