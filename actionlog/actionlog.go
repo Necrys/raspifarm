@@ -40,5 +40,7 @@ func (this *actionLog) Print(format string, args ...interface{}) error {
         return err
     }
 
+    this.writer.Flush()
+
     return nil
 }
