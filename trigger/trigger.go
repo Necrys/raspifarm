@@ -3,6 +3,7 @@ package trigger
 import (
     "../config"
     "../relay"
+    "../actionlog"
     "log"
     "errors"
 )
@@ -23,6 +24,7 @@ type Context struct {
     Sensors map[string]*SensorData
     Relays map[string]RelayIf
     Triggers []TriggerIf
+    log actionlog.ActionLogIf
 }
 
 type TriggerIf interface {
@@ -75,6 +77,8 @@ func CreateContext(cfg *config.Config) (*Context) {
             continue
         }
     }
+
+    this.log, _ = actionlog.NewActionLog(cfg.Action_log)
 
     return this
 }

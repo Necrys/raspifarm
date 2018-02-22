@@ -13,6 +13,7 @@ type Config struct {
     Update_period uint32
     Sensors_log_period uint32
     Do_hw_test bool
+    Action_log string
 }
 
 type Sensor struct {

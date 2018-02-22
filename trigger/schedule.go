@@ -107,7 +107,9 @@ func (this *ScheduleTrigger) Action(ctx *Context) {
 
     if this.doAction == true {
         ctx.Relays[this.relay].On()
+        ctx.log.Print("relay \"%s\" was switched on", this.relay)
     } else {
         ctx.Relays[this.relay].Off()
+        ctx.log.Print("relay \"%s\" was switched off", this.relay)
     }
 }

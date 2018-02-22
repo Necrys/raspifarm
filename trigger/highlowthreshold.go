@@ -83,8 +83,10 @@ func (this *HighLowThresholdTrigger) Action(ctx *Context) {
        this.initial && val > this.high {
         if this.actionOnHigh == true {
             ctx.Relays[this.relay].On()
+            ctx.log.Print("relay \"%s\" was switched on", this.relay)
         } else {
             ctx.Relays[this.relay].Off()
+            ctx.log.Print("relay \"%s\" was switched off", this.relay)
         }
         this.initial = false
     }
@@ -93,8 +95,10 @@ func (this *HighLowThresholdTrigger) Action(ctx *Context) {
        this.initial && val < this.low {
         if this.actionOnLow == true {
             ctx.Relays[this.relay].On()
+            ctx.log.Print("relay \"%s\" was switched on", this.relay)
         } else {
             ctx.Relays[this.relay].Off()
+            ctx.log.Print("relay \"%s\" was switched off", this.relay)
         }
         this.initial = false
     }
