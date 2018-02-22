@@ -5,10 +5,11 @@ import (
     "log"
     "bufio"
     "fmt"
+    "time"
 )
 
 type ActionLogIf interface {
-    Print(string, ...interface{})
+    Print(string, ...interface{}) error
 }
 
 type actionLog struct {
@@ -27,6 +28,17 @@ func NewActionLog(path string) (ActionLogIf, error) {
     return this, nil
 }
 
-func (this *actionLog) Print(format string, args ...interface{}) {
+func (this *actionLog) Print(format string, args ...interface{}) error {
+    t := time.Now()
+    _, err := fmt.Fprintf(this.writer, "%d.%02d.%02dT%02d.%02d.%02d\t\t", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second())
+    if err != nil {
+        return err
+    }
+
     fmt.Fprintf(this.writer, format + "\n", args)
+    if err != nil {
+        return err
+    }
+
+    return nil
 }
