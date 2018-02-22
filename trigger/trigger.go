@@ -62,6 +62,14 @@ func CreateContext(cfg *config.Config) (*Context) {
             }
             this.Triggers = append(this.Triggers, trg)
         }
+        case "schedule": {
+            trg, err := NewScheduleTrigger(t)
+            if err != nil {
+                log.Panic(err)
+                continue
+            }
+            this.Triggers = append(this.Triggers, trg)
+        }
         default:
             log.Panic("Unknown trigger type: \"" + t.Type + "\"")
             continue

@@ -32,6 +32,12 @@ type Threshold struct {
     Action string
 }
 
+type ScheduleTimePoint struct {
+    Minute int
+    Hour int
+    Action string
+}
+
 type Trigger struct {
     Type           string
     Sensor         string
@@ -39,6 +45,7 @@ type Trigger struct {
     Relay          string
     Low_threshold  Threshold
     High_threshold Threshold
+    Time_points    []ScheduleTimePoint
 }
 
 func Read(cfgPath string) (*Config, error) {
